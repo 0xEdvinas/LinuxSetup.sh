@@ -200,6 +200,12 @@ mkdir -p tmp/
 rm -rf ~/.config/nvim
 git clone https://github.com/0xEdvinas/nvim.git ~/.config/nvim
 
+# Install dotfiles
+cd ~/tmp/
+git clone https://github.com/0xEdvinas/dotfiles.git
+chmod +x ./dotfiles/setup.sh
+./dotfiles/setup.sh
+
 # Install hyperland
 echo "Do you want to install HyperLand and its config? (y/n)"
 read -r install_hyperland
