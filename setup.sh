@@ -58,7 +58,7 @@ sudo dnf remove akregator dragon elisa-player mediawriter kmahjongg kmines kmout
 # Install my must have software
 sudo dnf install vlc fooyin qbittorrent fastfetch htop vim neovim ranger git kate -y
 
-flatpak install flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice -y
+flatpak install flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice org.mozilla.Thunderbird -y
 
 #
 # DEV
