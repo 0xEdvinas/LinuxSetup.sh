@@ -55,7 +55,6 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.
 sudo dnf remove firefox libreoffice\* -y
 sudo dnf remove akregator dragon elisa-player mediawriter kmahjongg kmines kmouth kpat krfb neochat krdc kwrite
 
-
 # Install my must have software
 sudo dnf install vlc fooyin qbittorrent fastfetch htop vim neovim ranger git kate -y
 
@@ -96,19 +95,7 @@ flatpak install flathub com.visualstudio.code com.google.AndroidStudio com.jetbr
 # Py
 sudo dnf install python3 python3-pip -y
 
-# C++/C
-sudo dnf install \
-    gcc gcc-c++ binutils glibc-devel glibc-headers libstdc++-devel libstdc++-static \
-    make automake autoconf libtool pkgconf pkgconf-pkg-config \
-    gdb lldb \
-    cmake ninja-build \
-    cppcheck clang clang-tools-extra clang-format clang-tidy \
-    valgrind perf \
-    zlib-devel openssl-devel libcurl-devel \
-    libatomic libatomic_ops-devel \
-    gtest-devel gmock-devel catch-devel -y
-
-    # Setup global git config
+# Setup global git config
 git config --global user.name "Edvinas Bureika"
 git config --global user.email "edvinasbureika@gmail.com"
 
