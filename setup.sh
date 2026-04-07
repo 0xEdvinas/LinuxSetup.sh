@@ -19,9 +19,6 @@ https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E 
 # Add flathub repo for flatpaks
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-# Install all the codecs
-sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-libav ffmpeg ffmpeg-libs ffmpeg-free lame libdvdcss -y
-
 sudo dnf install wget unzip -y
 
 # Fonts
