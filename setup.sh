@@ -7,34 +7,6 @@
 # Set timezone
 sudo timedatectl set-timezone Europe/Vilnius
 
-# Set system language to English but formats to Lithuanian
-mkdir -p ~/.config
-
-cat <<EOF > ~/.config/locale.conf
-LANG=C.UTF-8
-LC_NUMERIC=lt_LT.UTF-8
-LC_TIME=lt_LT.UTF-8
-LC_MONETARY=lt_LT.UTF-8
-LC_PAPER=lt_LT.UTF-8
-LC_MEASUREMENT=lt_LT.UTF-8
-LC_ADDRESS=lt_LT.UTF-8
-LC_IDENTIFICATION=lt_LT.UTF-8
-LC_NAME=lt_LT.UTF-8
-LC_TELEPHONE=lt_LT.UTF-8
-EOF
-
-# Keyboard layouts KDE SPECIFIC!!!
-mkdir -p ~/.config
-
-cat <<EOF > ~/.config/kxkbrc
-[Layout]
-DisplayNames=
-LayoutList=us,lt,ru
-Use=true
-VariantList=
-Options=grp:win_space_toggle
-EOF
-
 # Update the system
 sudo dnf update -y
 flatpak update -y
@@ -43,7 +15,6 @@ flatpak update -y
 sudo dnf install \
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
-sudo dnf groupupdate core -y
 
 # Add flathub repo for flatpaks
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
