@@ -170,7 +170,11 @@ chmod +x ./dotfiles/setup.sh
 echo "Do you want to install HyperLand and its config? (y/n)"
 read -r install_hyperland
 if [[ "$install_hyperland" == "y" || "$install_hyperland" == "Y" ]]; then
-    echo "Installing HyperLand..."
+    cd ~
+    git clone https://github.com/0xEdvinas/Hyprland.git
+    cd Hyprland
+    chmod +x install.sh
+    sh install.sh
 fi
 
 # Install QEMU Hooks
