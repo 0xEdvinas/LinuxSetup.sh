@@ -13,16 +13,6 @@ require_fedora() {
         source /etc/os-release
     fi
 
-<<<<<<< HEAD
-# Update the system
-sudo dnf update -y
-flatpak update -y
-
-# Enable RPM fusion(free and non-free) and refresh
-sudo dnf install \
-https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
-https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
-=======
     if [[ "${ID:-}" != "fedora" ]]; then
         echo "This script currently targets Fedora only."
         exit 1
@@ -72,14 +62,10 @@ fedora_enable_repositories() {
     sudo dnf groupupdate core -y
     flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 }
->>>>>>> 89d12a2 (organize to methods)
 
 fedora_install_fonts() {
     sudo dnf install -y wget unzip fontawesome-fonts
 
-<<<<<<< HEAD
-sudo dnf install wget unzip -y
-=======
     mkdir -p "$FONT_DIR"
     pushd "$FONT_DIR" >/dev/null
 
@@ -88,7 +74,6 @@ sudo dnf install wget unzip -y
         unzip "${font_name}.zip" -d "$font_name"
         rm "${font_name}.zip"
     done
->>>>>>> 89d12a2 (organize to methods)
 
     popd >/dev/null
     fc-cache -fv
@@ -135,12 +120,6 @@ fedora_setup_docker() {
         docker-logrotate \
         docker-engine
 
-<<<<<<< HEAD
-# Install my must have software
-sudo dnf install vlc fooyin qbittorrent fastfetch htop vim neovim ranger git kate -y
-
-flatpak install flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice org.mozilla.Thunderbird -y
-=======
     sudo dnf install -y dnf-plugins-core
     sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
     sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -175,7 +154,6 @@ fedora_install_dev_tools() {
         zlib-devel openssl-devel libcurl-devel \
         libatomic libatomic_ops-devel \
         gtest-devel gmock-devel catch-devel
->>>>>>> 89d12a2 (organize to methods)
 
     git config --global user.name "Edvinas Bureika"
     git config --global user.email "edvinasbureika@gmail.com"
@@ -210,17 +188,8 @@ clone_or_update_repo() {
     fi
 }
 
-<<<<<<< HEAD
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
-echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
-dnf check-update &&
-sudo dnf install code
-
-flatpak install flathub com.google.AndroidStudio com.jetbrains.PyCharm-Professional com.jetbrains.IntelliJ-IDEA-Community com.jetbrains.WebStorm com.jetbrains.CLion com.jetbrains.Rider com.jetbrains.DataGrip com.jetbrains.PhpStorm com.jetbrains.RustRover com.jetbrains.GoLand cc.arduino.IDE2 io.dbeaver.DBeaverCommunity -y
-=======
 fedora_load_configs() {
     clone_or_update_repo "$NVIM_REPO_URL" "$CONFIG_DIR/nvim"
->>>>>>> 89d12a2 (organize to methods)
 
     mkdir -p "$TEMP_DIR"
     pushd "$TEMP_DIR" >/dev/null
@@ -230,11 +199,6 @@ fedora_load_configs() {
     popd >/dev/null
 }
 
-<<<<<<< HEAD
-# Setup global git config
-git config --global user.name "Edvinas Bureika"
-git config --global user.email "edvinasbureika@gmail.com"
-=======
 fedora_install_optional_components() {
     local answer
 
@@ -242,7 +206,6 @@ fedora_install_optional_components() {
     if [[ "$answer" == [yY] ]]; then
         echo "Installing HyperLand..."
     fi
->>>>>>> 89d12a2 (organize to methods)
 
     read -r -p "Do you want to install Single Gpu Passthrough QEMU hooks? (y/n) " answer
     if [[ "$answer" == [yY] ]]; then
@@ -273,79 +236,4 @@ main() {
     setup_fedora
 }
 
-<<<<<<< HEAD
-# Add user to libvirt and kvm groups
-sudo usermod -aG libvirt,kvm $USER
-
-# Autostart network
-sudo virsh net-start default
-sudo virsh net-autostart default
-
-#
-# FILESYSTEM
-#
-cd ~
-
-mkdir -p Binaries/Applications
-mkdir -p Binaries/Games
-
-mkdir -p Personal/IDs
-mkdir -p Personal/ProfessionalPhotos
-mkdir -p Personal/Finance
-
-mkdir -p Programming/Personal
-mkdir -p Programming/Freelance
-mkdir -p Programming/Learning
-mkdir -p Programming/Tools
-mkdir -p Programming/Experiments
-mkdir -p Programming/Archive
-
-mkdir -p Torrents/Complete
-mkdir -p Torrents/Incomplete
-
-mkdir -p ISO
-
-mkdir -p Books/Audio
-mkdir -p Books/Text
-
-mkdir -p tmp/
-
-#
-# CONFIG LOADING
-#
-
-# Import my nvim config from my github page
-rm -rf ~/.config/nvim
-git clone https://github.com/0xEdvinas/nvim.git ~/.config/nvim
-
-# Install dotfiles
-cd ~/tmp/
-git clone https://github.com/0xEdvinas/dotfiles.git
-chmod +x ./dotfiles/setup.sh
-./dotfiles/setup.sh
-
-# Install hyperland
-echo "Do you want to install HyperLand and its config? (y/n)"
-read -r install_hyperland
-if [[ "$install_hyperland" == "y" || "$install_hyperland" == "Y" ]]; then
-    cd ~
-    git clone https://github.com/0xEdvinas/Hyprland.git
-    cd Hyprland
-    chmod +x install.sh
-    sh install.sh
-fi
-
-# Install QEMU Hooks
-echo "Do you want to install Single Gpu Passthrough QEMU hooks? (y/n)"
-read -r qemu_hooks
-if [[ "$qemu_hooks" == "y" || "$qemu_hooks" == "Y" ]]; then
-    echo "Installing QEMU Hooks"
-fi
-
-
-#
-# SSH key gen at the end for github
-#
-=======
 main "$@"
->>>>>>> 89d12a2 (organize to methods)
