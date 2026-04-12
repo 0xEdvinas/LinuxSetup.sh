@@ -1,12 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-#
-# SYSTEM
-#
+readonly CONFIG_DIR="$HOME/.config"
+readonly FONT_DIR="$HOME/.local/share/fonts"
+readonly TEMP_DIR="$HOME/tmp"
+readonly NVIM_REPO_URL="https://github.com/0xEdvinas/nvim.git"
+readonly DOTFILES_REPO_URL="https://github.com/0xEdvinas/dotfiles.git"
 
-# Set timezone
-sudo timedatectl set-timezone Europe/Vilnius
+require_fedora() {
+    if [[ -r /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        source /etc/os-release
+    fi
 
+<<<<<<< HEAD
 # Update the system
 sudo dnf update -y
 flatpak update -y
@@ -15,107 +22,258 @@ flatpak update -y
 sudo dnf install \
 https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm \
 https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm -y
+=======
+    if [[ "${ID:-}" != "fedora" ]]; then
+        echo "This script currently targets Fedora only."
+        exit 1
+    fi
+}
 
-# Add flathub repo for flatpaks
-flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+write_locale_config() {
+    mkdir -p "$CONFIG_DIR"
 
+    cat <<'EOF' > "$CONFIG_DIR/locale.conf"
+LANG=C.UTF-8
+LC_NUMERIC=lt_LT.UTF-8
+LC_TIME=lt_LT.UTF-8
+LC_MONETARY=lt_LT.UTF-8
+LC_PAPER=lt_LT.UTF-8
+LC_MEASUREMENT=lt_LT.UTF-8
+LC_ADDRESS=lt_LT.UTF-8
+LC_IDENTIFICATION=lt_LT.UTF-8
+LC_NAME=lt_LT.UTF-8
+LC_TELEPHONE=lt_LT.UTF-8
+EOF
+}
+
+write_keyboard_config() {
+    mkdir -p "$CONFIG_DIR"
+
+    cat <<'EOF' > "$CONFIG_DIR/kxkbrc"
+[Layout]
+DisplayNames=
+LayoutList=us,lt,ru
+Use=true
+VariantList=
+Options=grp:win_space_toggle
+EOF
+}
+
+fedora_update_system() {
+    sudo timedatectl set-timezone Europe/Vilnius
+    sudo dnf update -y
+    flatpak update -y
+}
+
+fedora_enable_repositories() {
+    sudo dnf install -y \
+        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
+        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+    sudo dnf groupupdate core -y
+    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+}
+>>>>>>> 89d12a2 (organize to methods)
+
+fedora_install_fonts() {
+    sudo dnf install -y wget unzip fontawesome-fonts
+
+<<<<<<< HEAD
 sudo dnf install wget unzip -y
+=======
+    mkdir -p "$FONT_DIR"
+    pushd "$FONT_DIR" >/dev/null
 
-# Fonts
-sudo dnf install fontawesome-fonts -y
+    for font_name in JetBrainsMono FiraCode; do
+        wget "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${font_name}.zip"
+        unzip "${font_name}.zip" -d "$font_name"
+        rm "${font_name}.zip"
+    done
+>>>>>>> 89d12a2 (organize to methods)
 
-mkdir -p ~/.local/share/fonts
-cd ~/.local/share/fonts
+    popd >/dev/null
+    fc-cache -fv
+}
 
-wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-unzip JetBrainsMono.zip -d JetBrainsMono
-rm JetBrainsMono.zip
+fedora_setup_zsh() {
+    sudo dnf install -y zsh
+    chsh -s "$(command -v zsh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+}
 
-wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
-unzip FiraCode.zip -d FiraCode
-rm FiraCode.zip
+fedora_install_zsh_plugins() {
+    local plugins_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
 
-fc-cache -fv
-cd ~
+    mkdir -p "$plugins_dir"
 
-# zsh
-sudo dnf install zsh -y
-chsh -s $(which zsh)
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    if [[ ! -d "$plugins_dir/zsh-autosuggestions" ]]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$plugins_dir/zsh-autosuggestions"
+    fi
 
-# ZSH plugins
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+    if [[ ! -d "$plugins_dir/zsh-syntax-highlighting" ]]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting "$plugins_dir/zsh-syntax-highlighting"
+    fi
+}
 
-#
-# APPS
-#
+fedora_remove_debloat_packages() {
+    sudo dnf remove -y firefox 'libreoffice*'
+    sudo dnf remove -y akregator dragon elisa-player mediawriter kmahjongg kmines kmouth kpat krfb neochat krdc kwrite
+}
 
-# Debloat
-sudo dnf remove firefox libreoffice\* -y
-sudo dnf remove akregator dragon elisa-player mediawriter kmahjongg kmines kmouth kpat krfb neochat krdc kwrite
+fedora_install_daily_apps() {
+    sudo dnf install -y vlc fooyin qbittorrent fastfetch htop vim neovim ranger git kate
+    flatpak install -y flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice
+}
 
+fedora_setup_docker() {
+    sudo dnf remove -y \
+        docker \
+        docker-client \
+        docker-client-latest \
+        docker-common \
+        docker-latest \
+        docker-latest-logrotate \
+        docker-logrotate \
+        docker-engine
+
+<<<<<<< HEAD
 # Install my must have software
 sudo dnf install vlc fooyin qbittorrent fastfetch htop vim neovim ranger git kate -y
 
 flatpak install flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice org.mozilla.Thunderbird -y
+=======
+    sudo dnf install -y dnf-plugins-core
+    sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo systemctl enable --now docker
+    sudo usermod -aG docker "$USER"
+}
 
-#
-# DEV
-#
+fedora_install_dev_tools() {
+    flatpak install -y flathub \
+        com.visualstudio.code \
+        com.google.AndroidStudio \
+        com.jetbrains.PyCharm-Professional \
+        com.jetbrains.IntelliJ-IDEA-Community \
+        com.jetbrains.WebStorm \
+        com.jetbrains.CLion \
+        com.jetbrains.Rider \
+        com.jetbrains.DataGrip \
+        com.jetbrains.PhpStorm \
+        com.jetbrains.RustRover \
+        com.jetbrains.GoLand \
+        cc.arduino.IDE2 \
+        io.dbeaver.DBeaverCommunity
 
-# Remove old docker packages
-sudo dnf remove docker \
-                docker-client \
-                docker-client-latest \
-                docker-common \
-                docker-latest \
-                docker-latest-logrotate \
-                docker-logrotate \
-                docker-engine -y
+    sudo dnf install -y python3 python3-pip
+    sudo dnf install -y \
+        gcc gcc-c++ binutils glibc-devel glibc-headers libstdc++-devel libstdc++-static \
+        make automake autoconf libtool pkgconf pkgconf-pkg-config \
+        gdb lldb \
+        cmake ninja-build \
+        cppcheck clang clang-tools-extra clang-format clang-tidy \
+        valgrind perf \
+        zlib-devel openssl-devel libcurl-devel \
+        libatomic libatomic_ops-devel \
+        gtest-devel gmock-devel catch-devel
+>>>>>>> 89d12a2 (organize to methods)
 
-# Required tools
-sudo dnf -y install dnf-plugins-core -y
+    git config --global user.name "Edvinas Bureika"
+    git config --global user.email "edvinasbureika@gmail.com"
+}
 
-# Docker official repo
-sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+fedora_setup_virtualization() {
+    sudo dnf install -y qemu-kvm libvirt virt-manager virt-viewer spice-vdagent
+    sudo dnf group install --with-optional virtualization -y
+    sudo systemctl enable --now libvirtd
+    sudo usermod -aG libvirt,kvm "$USER"
 
-# Install docker engine
-sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    if ! sudo virsh net-info default | grep -q '^Active: *yes$'; then
+        sudo virsh net-start default
+    fi
 
-# Start and enable docker
-sudo systemctl start docker
-sudo systemctl enable docker
+    sudo virsh net-autostart default
+}
 
-# Run docker without sudo
-sudo usermod -aG docker $USER
+create_filesystem_layout() {
+    mkdir -p "$HOME"/{Binaries/{Applications,Games},Personal/{IDs,ProfessionalPhotos,Finance},Programming/{Personal,Freelance,Learning,Tools,Experiments,Archive},Torrents/{Complete,Incomplete},ISO,Books/{Audio,Text},tmp}
+}
 
+clone_or_update_repo() {
+    local repo_url="$1"
+    local destination="$2"
+
+    if [[ -d "$destination/.git" ]]; then
+        git -C "$destination" pull --ff-only
+    else
+        rm -rf "$destination"
+        git clone "$repo_url" "$destination"
+    fi
+}
+
+<<<<<<< HEAD
 sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
 echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
 dnf check-update &&
 sudo dnf install code
 
 flatpak install flathub com.google.AndroidStudio com.jetbrains.PyCharm-Professional com.jetbrains.IntelliJ-IDEA-Community com.jetbrains.WebStorm com.jetbrains.CLion com.jetbrains.Rider com.jetbrains.DataGrip com.jetbrains.PhpStorm com.jetbrains.RustRover com.jetbrains.GoLand cc.arduino.IDE2 io.dbeaver.DBeaverCommunity -y
+=======
+fedora_load_configs() {
+    clone_or_update_repo "$NVIM_REPO_URL" "$CONFIG_DIR/nvim"
+>>>>>>> 89d12a2 (organize to methods)
 
-# Py
-sudo dnf install python3 python3-pip -y
+    mkdir -p "$TEMP_DIR"
+    pushd "$TEMP_DIR" >/dev/null
+    clone_or_update_repo "$DOTFILES_REPO_URL" "$TEMP_DIR/dotfiles"
+    chmod +x ./dotfiles/setup.sh
+    ./dotfiles/setup.sh
+    popd >/dev/null
+}
 
+<<<<<<< HEAD
 # Setup global git config
 git config --global user.name "Edvinas Bureika"
 git config --global user.email "edvinasbureika@gmail.com"
+=======
+fedora_install_optional_components() {
+    local answer
 
-#
-# VIRTUALIZATION
-#
+    read -r -p "Do you want to install HyperLand and its config? (y/n) " answer
+    if [[ "$answer" == [yY] ]]; then
+        echo "Installing HyperLand..."
+    fi
+>>>>>>> 89d12a2 (organize to methods)
 
-# QEMU and virt-manager for virtual machines
-sudo dnf install qemu-kvm libvirt virt-manager virt-viewer spice-vdagent -y
-sudo dnf group install --with-optional virtualization -y
+    read -r -p "Do you want to install Single Gpu Passthrough QEMU hooks? (y/n) " answer
+    if [[ "$answer" == [yY] ]]; then
+        echo "Installing QEMU Hooks"
+    fi
+}
 
-# Enable and start libvirtd
-sudo systemctl enable libvirtd
-sudo systemctl start libvirtd
+setup_fedora() {
+    fedora_update_system
+    write_locale_config
+    write_keyboard_config
+    fedora_enable_repositories
+    fedora_install_fonts
+    fedora_setup_zsh
+    fedora_install_zsh_plugins
+    fedora_remove_debloat_packages
+    fedora_install_daily_apps
+    fedora_setup_docker
+    fedora_install_dev_tools
+    fedora_setup_virtualization
+    create_filesystem_layout
+    fedora_load_configs
+    fedora_install_optional_components
+}
 
+main() {
+    require_fedora
+    setup_fedora
+}
+
+<<<<<<< HEAD
 # Add user to libvirt and kvm groups
 sudo usermod -aG libvirt,kvm $USER
 
@@ -188,3 +346,6 @@ fi
 #
 # SSH key gen at the end for github
 #
+=======
+main "$@"
+>>>>>>> 89d12a2 (organize to methods)
