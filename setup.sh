@@ -109,6 +109,10 @@ fedora_install_daily_apps() {
     flatpak install -y flathub com.google.Chrome org.mozilla.firefox com.bitwarden.desktop org.libreoffice.LibreOffice
 }
 
+fedroa_install_c_tools() {
+    sudo dnf install clang clang-tools-extra cmake -y
+}
+
 fedora_setup_docker() {
     sudo dnf remove -y \
         docker \
