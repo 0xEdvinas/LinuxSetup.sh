@@ -110,7 +110,7 @@ fedora_install_daily_apps() {
 }
 
 fedroa_install_c_tools() {
-    sudo dnf install clang clang-tools-extra cmake -y
+    sudo dnf install clang clang-tools-extra cmake gcc make libcurl-devel -y
 }
 
 fedora_setup_docker() {
