@@ -19,7 +19,7 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 
 sudo timedatectl set-timezone Europe/Vilnius
 
-sudo apt install zsh wget curl vlc qbittorrent fastfetch htop vim neovim ranger git kate -y
+sudo apt install zsh wget curl vlc qbittorrent fastfetch htop vim neovim ranger git kate tree -y
 
 # Setup global git config
 git config --global user.name "Edvinas Bureika"
